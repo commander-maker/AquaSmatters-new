@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:aqua_smatters/services/auth_service.dart';
-import 'package:aqua_smatters/utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       // Sign in with email and password
-      final credentials = await _authService.signInWithEmailAndPassword(
+      await _authService.signInWithEmailAndPassword(
         emailController.text.trim(),
         passwordController.text,
       );
@@ -173,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Implement forgot password
+                        Navigator.pushNamed(context, '/forgot');
                       },
                       child: const Text(
                         'Forgot Password',
