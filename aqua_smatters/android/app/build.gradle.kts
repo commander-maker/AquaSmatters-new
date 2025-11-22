@@ -10,8 +10,8 @@ plugins {
 
 android {
     namespace = "com.example.aqua_smatters"
-    compileSdk = 34
-    ndkVersion = "25.1.8937393"
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.aqua_smatters"
-        minSdk = 21 // Required for Firebase
+        minSdk = flutter.minSdkVersion // Required for Firebase
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
