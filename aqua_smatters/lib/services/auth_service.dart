@@ -1,66 +1,44 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aqua_smatters/models/user_model.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+final FirebaseDatabase _database = FirebaseDatabase.instance;
+DatabaseReference ref = _database.ref();
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
 
-  // Create user with email and password
   Future<UserModel> createUserWithEmailAndPassword(
-    String email,
-    String password,
-    String fullName,
-  ) async {
+      String email, String password, String fullName) async {
     try {
-      print('Attempting to create user: $email'); // Debug log
-      // Create the user with email and password
-      final UserCredential userCredential =
+      UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Update the user's display name
-      await userCredential.user?.updateDisplayName(fullName);
+      // Get UID
+      String uid = userCredential.user!.uid;
 
-      // Create the user model
-      final UserModel userModel = UserModel(
-        uid: userCredential.user!.uid,
-        email: email,
+      // Store user data in Realtime Database
+      await _dbRef.child('users/$uid/dashboard').set({
+        'waterLevel': 0,
+        'flowRate': 0,
+        'valveStatus': false,
+      });
+
+      // Return a UserModel instance
+      return UserModel(
+        uid: uid,
         fullName: fullName,
+        email: email,
         createdAt: DateTime.now(),
       );
-
-      // Store additional user data in Firestore
-      await _firestore
-          .collection('users')
-          .doc(userModel.uid)
-          .set(userModel.toMap());
-
-      return userModel;
     } catch (e) {
-      print('Error creating user: $e'); // Debug log
-      throw _handleAuthException(e);
-    }
-  }
-
-  // Sign in with email and password
-  Future<UserCredential> signInWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
-    try {
-      print('Attempting sign in for: $email');
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      print('Sign in successful for: ${credential.user?.uid}');
-      return credential;
-    } catch (e) {
-      print('Error signing in: $e');
-      throw _handleAuthException(e);
+      rethrow;
     }
   }
 
@@ -122,6 +100,21 @@ class AuthService {
     } catch (e) {
       print('Error sending password reset email: $e');
       throw _handleAuthException(e);
+    }
+  }
+
+  // Sign in with email and password
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } catch (e) {
+      print('Error signing in: $e');
+      return null;
     }
   }
 
