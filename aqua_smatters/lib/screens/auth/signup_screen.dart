@@ -79,7 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Stack(
               children: [
                 Image.asset(
-                  'assets/images/wave_bg.png',
+                  'assets/images/signin_wave.png',
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,

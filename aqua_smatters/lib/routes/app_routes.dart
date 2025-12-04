@@ -5,6 +5,7 @@ import 'package:aqua_smatters/screens/auth/forgotpassword_screen.dart';
 import 'package:aqua_smatters/screens/dashboard/dashboard_screen.dart';
 import 'package:aqua_smatters/screens/water-quality/quality_screen.dart';
 import 'package:aqua_smatters/screens/usage/usage_screen.dart';
+import 'package:aqua_smatters/screens/welcome/welcome_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -14,6 +15,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String quality = '/quality';
   static const String usage = '/usage';
+  static const String welcome = '/welcome';
 
   // Route map
   static Map<String, WidgetBuilder> get routes => {
@@ -23,8 +25,9 @@ class AppRoutes {
         dashboard: (context) => const DashboardScreen(),
         quality: (context) => const QualityScreen(),
         usage: (context) => const UsageScreen(),
+        welcome: (context) => const WelcomeScreen(),
       };
 
   // Initial route
-  static String get initialRoute => login;
+  static String get initialRoute => welcome;
 }
