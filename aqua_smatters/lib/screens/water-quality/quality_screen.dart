@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import '../../widgets/customheaderbar.dart';
 
 class QualityScreen extends StatelessWidget {
   const QualityScreen({super.key});
@@ -10,120 +11,17 @@ class QualityScreen extends StatelessWidget {
     return FirebaseDatabase.instance.ref('users/$uid/quality');
   }
 
-  String getStatus(double value, String type) {
-    switch (type) {
-      case 'PH':
-        if (value >= 6.5 && value <= 8.5) return 'Good';
-        if (value < 6.5) return 'Acidic';
-        return 'Alkaline';
-      case 'TURBIDITY':
-        if (value < 5) return 'Excellent';
-        if (value < 10) return 'Good';
-        return 'Bad';
-      case 'TDS':
-        if (value < 300) return 'Excellent';
-        if (value < 500) return 'Good';
-        return 'Bad';
-      default:
-        return '';
-    }
-  }
-
-  IconData getStatusIcon(String status) {
-    switch (status) {
-      case 'Excellent':
-        return Icons.emoji_emotions;
-      case 'Good':
-        return Icons.sentiment_satisfied_alt;
-      case 'Acidic':
-      case 'Alkaline':
-      case 'Bad':
-        return Icons.sentiment_very_dissatisfied;
-      default:
-        return Icons.help_outline;
-    }
-  }
-
-  Color getStatusColor(String status) {
-    switch (status) {
-      case 'Excellent':
-        return Colors.green;
-      case 'Good':
-        return Colors.blue;
-      case 'Acidic':
-      case 'Alkaline':
-      case 'Bad':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Widget buildBar({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required String type,
-  }) {
-    final status = getStatus(value, type);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Icon(
-          getStatusIcon(status),
-          color: getStatusColor(status),
-          size: 32,
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: 40,
-          height: 120,
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: 40,
-              height: ((value - min) / (max - min)).clamp(0.0, 1.0) * 120,
-              decoration: BoxDecoration(
-                color: getStatusColor(status),
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(
-          status,
-          style: TextStyle(
-            color: getStatusColor(status),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Water Management Partner'),
-        centerTitle: true,
-      ),
+      backgroundColor: Colors.white,
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 24),
+          const CustomHeaderBar(
+            selectedIndex: 0,
+            title: 'Water Management Partner',
+          ),
+          const SizedBox(height: 32),
           const Text(
             'Water Quality',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -131,7 +29,7 @@ class QualityScreen extends StatelessWidget {
           const SizedBox(height: 32),
           Center(
             child: Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
@@ -161,21 +59,11 @@ class QualityScreen extends StatelessWidget {
                   final tds = (data['tds'] ?? 0).toDouble();
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      buildBar(
-                          label: 'PH', value: ph, min: 0, max: 14, type: 'PH'),
-                      buildBar(
-                          label: 'TURBIDITY',
-                          value: turbidity,
-                          min: 0,
-                          max: 20,
-                          type: 'TURBIDITY'),
-                      buildBar(
-                          label: 'TDS',
-                          value: tds,
-                          min: 0,
-                          max: 1000,
-                          type: 'TDS'),
+                      _buildBar('PH', ph, 0, 14),
+                      _buildBar('TURBIDITY', turbidity, 0, 20),
+                      _buildBar('TDS', tds, 0, 1000),
                     ],
                   );
                 },
@@ -184,6 +72,93 @@ class QualityScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBar(String label, double value, double min, double max) {
+    String status;
+    Color barColor;
+    switch (label) {
+      case 'PH':
+        if (value >= 6.5 && value <= 8.5) {
+          status = 'Good';
+          barColor = Colors.blue;
+        } else if (value < 6.5) {
+          status = 'Acidic';
+          barColor = Colors.red;
+        } else {
+          status = 'Alkaline';
+          barColor = Colors.red;
+        }
+        break;
+      case 'TURBIDITY':
+        if (value < 5) {
+          status = 'Excellent';
+          barColor = Colors.green;
+        } else if (value < 10) {
+          status = 'Good';
+          barColor = Colors.blue;
+        } else {
+          status = 'Bad';
+          barColor = Colors.red;
+        }
+        break;
+      case 'TDS':
+        if (value < 300) {
+          status = 'Excellent';
+          barColor = Colors.green;
+        } else if (value < 500) {
+          status = 'Good';
+          barColor = Colors.blue;
+        } else {
+          status = 'Bad';
+          barColor = Colors.red;
+        }
+        break;
+      default:
+        status = '';
+        barColor = Colors.grey;
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          status,
+          style: TextStyle(
+            color: barColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: 50,
+          height: 140,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: 50,
+              height: ((value - min) / (max - min)).clamp(0.0, 1.0) * 140,
+              decoration: BoxDecoration(
+                color: barColor,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 15, color: Colors.grey),
+        ),
+      ],
     );
   }
 }
